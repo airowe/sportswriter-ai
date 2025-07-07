@@ -1,5 +1,5 @@
-import React from 'react';
-import { useState } from 'react';
+"use client";
+import React, { useState } from 'react';
 
 export default function Home() {
   const [url, setUrl] = useState('');
@@ -61,17 +61,41 @@ export default function Home() {
       </button>
       {error && <div style={{ color: 'red', marginTop: 8 }}>{error}</div>}
       {article && (
-        <div style={{ marginTop: 24, border: '1px solid #ccc', padding: 16, borderRadius: 8 }}>
-          <h2>{article.title}</h2>
-          <div style={{ color: '#888', fontSize: 14 }}>
-            {article.author && <span>By {article.author} </span>}
-            {article.publishDate && <span>({article.publishDate})</span>}
+        <>
+          <div style={{ marginTop: 24, border: '1px solid #ccc', padding: 16, borderRadius: 8 }}>
+            <h2>
+              {typeof article.title === 'string'
+                ? article.title
+                : JSON.stringify(article.title)}
+            </h2>
+            <div style={{ color: '#888', fontSize: 14 }}>
+              {article.author && (
+                <span>
+                  {typeof article.author === 'string'
+                    ? `By ${article.author} `
+                    : JSON.stringify(article.author)}
+                </span>
+              )}
+              {article.publishDate && (
+                <span>
+                  {typeof article.publishDate === 'string'
+                    ? `(${article.publishDate})`
+                    : JSON.stringify(article.publishDate)}
+                </span>
+              )}
+            </div>
+            <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', marginTop: 16 }}>
+              {typeof article.body === 'string'
+                ? article.body
+                : Array.isArray(article.body)
+                  ? article.body.join('\n\n')
+                  : JSON.stringify(article.body)}
+            </pre>
+            <button onClick={handleSave} style={{ marginTop: 16 }} disabled={saved}>
+              {saved ? 'Saved!' : 'Save to Training Data'}
+            </button>
           </div>
-          <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', marginTop: 16 }}>{article.body}</pre>
-          <button onClick={handleSave} style={{ marginTop: 16 }} disabled={saved}>
-            {saved ? 'Saved!' : 'Save to Training Data'}
-          </button>
-        </div>
+        </>
       )}
     </div>
   );
