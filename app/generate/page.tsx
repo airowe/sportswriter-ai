@@ -1,4 +1,5 @@
-import { useState } from 'react';
+"use client";
+import React, { useState } from 'react';
 
 export default function GeneratePage() {
   const [prompt, setPrompt] = useState('');

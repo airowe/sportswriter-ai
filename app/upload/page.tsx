@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import { useState } from 'react';
 
@@ -20,7 +21,7 @@ export default function UploadPage() {
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Upload Writing Samples</h1>
+      <h1 className="text-2xl font-bold mb-4">Upload Training Data</h1>
       {samples.map((s, i) => (
         <div key={i} className="mb-4">
           <textarea
