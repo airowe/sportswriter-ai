@@ -49,3 +49,14 @@ Thumbs.db
 # package-lock.json
 yarn.lock
 pnpm-lock.yaml
+
+/generated/prisma
+/node_modules
+npm-debug.log*
+.yarn
+
+# Prisma
+/prisma/dev.db
+
+# Environment files
+.env
