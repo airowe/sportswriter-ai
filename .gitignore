@@ -49,3 +49,9 @@ Thumbs.db
 # package-lock.json
 yarn.lock
 pnpm-lock.yaml
+
+# Training data files
+training-data.json
+training-samples.json
+fine-tune-metadata.json
+public/training.jsonl

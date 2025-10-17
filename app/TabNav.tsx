@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 const tabs = [
   { label: 'Upload', href: '/upload' },
   { label: 'Generate', href: '/generate' },
+  { label: 'Training Data', href: '/training-data' },
 ];
 
 export function TabNav() {
