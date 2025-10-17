@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { formatSamples } from '@/lib/formatSamples';
+import { formatSamples } from '../../lib/formatSamples';
 import fs from 'fs';
 import path from 'path';
 import { withApiMiddleware } from '@/lib/apiMiddleware';

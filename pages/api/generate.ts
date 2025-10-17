@@ -1,4 +1,4 @@
-import { openai } from '@/lib/openai';
+import { openai } from '../../lib/openai';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { withApiMiddleware } from '@/lib/apiMiddleware';
 import { ValidationError, ExternalServiceError } from '@/lib/errors';
