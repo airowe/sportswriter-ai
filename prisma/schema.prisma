@@ -1,0 +1,44 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum JobType {
+  FINE_TUNE_EXPORT
+  PREVIEW_GENERATION
+  RECAP_GENERATION
+}
+
+enum JobStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model ContentJob {
+  id            String     @id @default(cuid())
+  type          JobType
+  status        JobStatus  @default(PENDING)
+  payload       Json
+  result        Json?
+  error         String?
+  retryCount    Int        @default(0)
+  maxRetries    Int        @default(3)
+  priority      Int        @default(0)
+  scheduledFor  DateTime?
+  startedAt     DateTime?
+  completedAt   DateTime?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@index([status, scheduledFor])
+  @@index([scheduledFor])
+}
