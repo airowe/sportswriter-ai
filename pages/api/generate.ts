@@ -1,4 +1,4 @@
-import { openai } from '@/lib/openai';
+import { openai } from '../../lib/openai';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

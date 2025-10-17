@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { testMcpServer } from '@/lib/secureSettings';
+import { testMcpServer } from '../../../lib/secureSettings';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {

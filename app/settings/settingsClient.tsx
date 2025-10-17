@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useMemo, useState, useTransition } from 'react';
-import type { SettingsOverview } from '@/lib/secureSettings';
+import type { SettingsOverview } from '../../lib/secureSettings';
 import { useActionState, useFormStatus } from 'react-dom';
 
 type Actions = {

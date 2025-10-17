@@ -1,5 +1,5 @@
-import { getSettingsOverview, setProviderKey, validateProviderKey, addMcpServer, updateMcpServer, removeMcpServer } from '@/lib/secureSettings';
-import type { SettingsOverview } from '@/lib/secureSettings';
+import { getSettingsOverview, setProviderKey, validateProviderKey, addMcpServer, updateMcpServer, removeMcpServer } from '../../lib/secureSettings';
+import type { SettingsOverview } from '../../lib/secureSettings';
 import SettingsClient from './settingsClient';
 
 export default async function SettingsPage() {
