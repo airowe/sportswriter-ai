@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { JobType, JobStatus } from '@prisma/client';
+import { Prisma, JobType, JobStatus } from '@prisma/client';
 import { claimNextJob, updateJobStatus } from '../lib/queue';
 import { handleFineTuneExport } from './handlers/fineTuneExport';
 import { handlePreviewGeneration, handleRecapGeneration } from './handlers/generation';
@@ -40,7 +40,9 @@ async function processJob() {
         throw new Error(`Unknown job type: ${job.type}`);
     }
 
-    await updateJobStatus(job.id, JobStatus.COMPLETED, { result });
+    await updateJobStatus(job.id, JobStatus.COMPLETED, {
+      result: JSON.parse(JSON.stringify(result)),
+    });
     console.log(`[Worker] Job ${job.id} completed successfully`);
     consecutiveErrors = 0;
     return true;
@@ -60,6 +62,7 @@ async function processJob() {
         retryCount: attempt,
         scheduledFor: nextAttempt,
         startedAt: null,
+        result: Prisma.JsonNull,
       });
     } else {
       console.log(`[Worker] Job ${job.id} exceeded max retries, marking as failed`);

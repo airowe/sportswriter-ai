@@ -1,11 +1,8 @@
+import { Prisma, JobType, JobStatus } from '@prisma/client';
 import { prisma } from './prisma';
-import { JobType, JobStatus } from '@prisma/client';
 
-export interface JobPayload {
-  [key: string]: any;
-}
-
-import type { Prisma } from '@prisma/client';
+export type JobPayload = Prisma.InputJsonValue;
+export type JobResultValue = Prisma.NullableJsonNullValueInput | Prisma.InputJsonValue;
 
 export interface CreateJobOptions {
   type: JobType;
@@ -16,7 +13,7 @@ export interface CreateJobOptions {
 }
 
 export interface UpdateJobOptions {
-  result?: Prisma.JsonValue;
+  result?: JobResultValue;
   error?: string | null;
   retryCount?: number;
   scheduledFor?: Date | null;
@@ -29,7 +26,7 @@ export async function createJob(options: CreateJobOptions) {
   return prisma.contentJob.create({
     data: {
       type: options.type,
-      payload: options.payload as Prisma.JsonValue,
+      payload: options.payload,
       priority: options.priority ?? 0,
       scheduledFor: options.scheduledFor ?? null,
       maxRetries: options.maxRetries ?? 3,
@@ -103,7 +100,7 @@ export async function claimNextJob() {
       },
     });
 
-    if (claimed === 0) {
+    if (claimed.count === 0) {
       return null;
     }
 
@@ -144,7 +141,7 @@ export async function updateJobStatus(id: string, status: JobStatus, data: Updat
   }
 
   if (data.payload !== undefined) {
-    updateData.payload = data.payload as Prisma.JsonValue;
+    updateData.payload = data.payload;
   }
 
   if (status === JobStatus.COMPLETED) {

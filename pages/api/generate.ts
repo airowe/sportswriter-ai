@@ -19,7 +19,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const job = await createJob({
       type: jobType,
-      payload: { prompt, model, temperature, maxTokens },
+      payload: {
+        prompt,
+        model: model ?? null,
+        temperature: temperature ?? null,
+        maxTokens: maxTokens ?? null,
+      },
       scheduledFor: scheduledFor ? new Date(scheduledFor) : undefined,
       priority: priority ?? 0,
     });
