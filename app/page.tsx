@@ -1,6 +1,8 @@
 "use client";
 import React, { useState } from 'react';
 
+import parse, { Element } from 'html-react-parser';
+
 export default function Home() {
   const [url, setUrl] = useState('');
   const [article, setArticle] = useState<any>(null);
@@ -47,55 +49,75 @@ export default function Home() {
   };
 
   return (
-    <div style={{ maxWidth: 600, margin: '2rem auto', fontFamily: 'sans-serif' }}>
-      <h1>Paste Article Link</h1>
+    <div className="max-w-xl mx-auto my-8 font-sans">
+      <h1 className="text-2xl font-bold mb-4">Paste Article Link</h1>
       <input
         type="text"
         value={url}
         onChange={e => setUrl(e.target.value)}
         placeholder="https://example.com/article"
-        style={{ width: '100%', padding: 8, fontSize: 16 }}
+        className="w-full p-2 text-base border border-gray-300 rounded mb-4"
       />
-      <button onClick={handleExtract} disabled={loading || !url} style={{ marginTop: 12 }}>
+      <button
+        onClick={handleExtract}
+        disabled={loading || !url}
+        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded mb-4 disabled:opacity-60"
+      >
         {loading ? 'Loading...' : 'Preview'}
       </button>
-      {error && <div style={{ color: 'red', marginTop: 8 }}>{error}</div>}
+      {error && <div className="text-red-600 mt-2 mb-2">{error}</div>}
       {article && (
-        <>
-          <div style={{ marginTop: 24, border: '1px solid #ccc', padding: 16, borderRadius: 8 }}>
-            <h2>
-              {typeof article.title === 'string'
-                ? article.title
-                : JSON.stringify(article.title)}
-            </h2>
-            <div style={{ color: '#888', fontSize: 14 }}>
-              {article.author && (
-                <span>
-                  {typeof article.author === 'string'
-                    ? `By ${article.author} `
-                    : JSON.stringify(article.author)}
-                </span>
-              )}
-              {article.publishDate && (
-                <span>
-                  {typeof article.publishDate === 'string'
-                    ? `(${article.publishDate})`
-                    : JSON.stringify(article.publishDate)}
-                </span>
-              )}
-            </div>
-            <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', marginTop: 16 }}>
-              {typeof article.body === 'string'
-                ? article.body
-                : Array.isArray(article.body)
-                  ? article.body.join('\n\n')
-                  : JSON.stringify(article.body)}
-            </pre>
-            <button onClick={handleSave} style={{ marginTop: 16 }} disabled={saved}>
-              {saved ? 'Saved!' : 'Save to Training Data'}
-            </button>
+        <div className="bg-white border border-gray-200 rounded-xl shadow p-6 mt-8">
+          <h2 className="text-xl font-semibold mb-2">
+            {typeof article.title === 'string'
+              ? article.title
+              : JSON.stringify(article.title)}
+          </h2>
+          <div className="text-gray-500 text-sm mb-2">
+            {article.author && (
+              <span>
+                {typeof article.author === 'string'
+                  ? `By ${article.author} `
+                  : JSON.stringify(article.author)}
+              </span>
+            )}
+            {article.publishDate && (
+              <span>
+                {typeof article.publishDate === 'string'
+                  ? `(${article.publishDate})`
+                  : JSON.stringify(article.publishDate)}
+              </span>
+            )}
           </div>
-        </>
+          <div className="prose max-w-none mt-4">
+            {typeof article.body === 'string' && /<img|<figure|<picture|<iframe|<video/i.test(article.body)
+              ? parse(article.body, {
+                  replace(domNode: any) {
+                    if (domNode.type === 'tag' && domNode.name === 'img' && domNode.attribs) {
+                      return (
+                        <img
+                          {...domNode.attribs}
+                          className="max-w-full h-auto rounded shadow mb-4 mx-auto"
+                          style={{ maxHeight: 400 }}
+                        />
+                      );
+                    }
+                  },
+                })
+              : typeof article.body === 'string'
+              ? article.body
+              : Array.isArray(article.body)
+              ? article.body.join('\n\n')
+              : JSON.stringify(article.body)}
+          </div>
+          <button
+            onClick={handleSave}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4"
+            disabled={saved}
+          >
+            {saved ? 'Saved!' : 'Save to Training Data'}
+          </button>
+        </div>
       )}
     </div>
   );
