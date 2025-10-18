@@ -1,10 +1,18 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'fs';
 import path from 'path';
+import type { NextApiRequest, NextApiResponse } from 'next';
+
+import { getLogger, withApiLogging } from '@/lib/logger';
 
 const DATA_FILE = path.join(process.cwd(), 'training-data.json');
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const requestId = req.headers['x-request-id'];
+  const log = getLogger({
+    route: 'save-article',
+    requestId: Array.isArray(requestId) ? requestId[0] : requestId,
+  });
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -24,5 +32,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   data.push(newEntry);
   fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
 
+  log.info({
+    message: 'article_saved',
+    url,
+    totalEntries: data.length,
+  });
+
   res.status(200).json({ success: true });
 }
+
+export default withApiLogging(handler, { name: 'save-article' });

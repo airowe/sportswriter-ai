@@ -1,9 +1,16 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
+import type { NextApiRequest, NextApiResponse } from 'next';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+import { getLogger, withApiLogging } from '@/lib/logger';
+
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { url } = req.body;
+  const requestId = req.headers['x-request-id'];
+  const log = getLogger({
+    route: 'extract-article',
+    requestId: Array.isArray(requestId) ? requestId[0] : requestId,
+  });
 
   if (!url) {
     return res.status(400).json({ error: 'Missing URL' });
@@ -36,6 +43,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     res.status(200).json({ title, body, author, publishDate });
   } catch (error: Error | unknown) {
-    res.status(500).json({ error: 'Failed to extract article', detail: error instanceof Error ? error.message : 'Unknown error' });
+    const detail = error instanceof Error ? error.message : 'Unknown error';
+    log.error({ error: detail }, 'article extraction failed');
+    res.status(500).json({ error: 'Failed to extract article', detail });
   }
 }
+
+export default withApiLogging(handler, { name: 'extract-article' });

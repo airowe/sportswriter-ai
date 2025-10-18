@@ -1,8 +1,15 @@
-import { openai } from '@/lib/openai';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+import { getLogger, withApiLogging } from '@/lib/logger';
+import { openai } from '@/lib/openai';
+
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { prompt } = req.body;
+  const requestId = req.headers['x-request-id'];
+  const log = getLogger({
+    route: 'generate',
+    requestId: Array.isArray(requestId) ? requestId[0] : requestId,
+  });
 
   try {
     const completion = await openai.chat.completions.create({
@@ -14,6 +21,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     res.status(200).json({ content: completion.choices[0].message.content });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    log.error({ err }, 'generate handler failed');
+    res.status(500).json({ error: message });
   }
 }
+
+export default withApiLogging(handler, { name: 'generate' });

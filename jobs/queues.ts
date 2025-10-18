@@ -1,5 +1,6 @@
 import { Queue } from 'bullmq';
 
+import { getLogger } from '@/lib/logger';
 import { getRedisConnectionOptions } from '@/lib/redis';
 import {
   CONTENT_QUEUE_NAME,
@@ -11,6 +12,10 @@ import { recordJobEvent, updateJobStatus } from '@/lib/jobs';
 const defaultAttempts = Number(process.env.JOB_DEFAULT_ATTEMPTS ?? '3');
 const removeOnCompleteCount = Number(process.env.JOB_REMOVE_ON_COMPLETE ?? '100');
 const removeOnFailCount = Number(process.env.JOB_REMOVE_ON_FAIL ?? '100');
+const log = getLogger({
+  component: 'queue',
+  queue: CONTENT_QUEUE_NAME,
+});
 
 declare global {
   // eslint-disable-next-line no-var
@@ -53,6 +58,13 @@ export async function enqueueFineTuneExportJob(
   data: Omit<FineTuneExportJobData, 'jobId'>,
 ) {
   const job = await contentQueue.add(FINE_TUNE_EXPORT_JOB, { jobId, ...data });
+  log.info({
+    message: 'job_enqueued',
+    jobId,
+    queueJobId: job.id,
+    jobName: FINE_TUNE_EXPORT_JOB,
+    sampleCount: data.samples.length,
+  });
 
   await updateJobStatus(jobId, 'queued', {
     queueJobId: job.id,
