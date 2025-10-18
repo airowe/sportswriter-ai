@@ -8,7 +8,7 @@ import { getLogger } from '@/lib/logger';
 import { FINE_TUNE_EXPORT_JOB, type FineTuneExportJobData } from '../types';
 
 export async function processFineTuneExport(
-  job: Job<FineTuneExportJobData, unknown, typeof FINE_TUNE_EXPORT_JOB>,
+  job: Job<FineTuneExportJobData, unknown>,
   jobLogger?: ReturnType<typeof getLogger>,
 ) {
   const { jobId, samples } = job.data;
