@@ -1,0 +1,64 @@
+{
+  "statements": [
+    {
+      "sql": "CREATE EXTENSION IF NOT EXISTS \"pgcrypto\";",
+      "params": []
+    },
+    {
+      "sql": "CREATE TYPE credential_provider AS ENUM ('openai', 'espn', 'cfbd', 'custom');",
+      "params": []
+    },
+    {
+      "sql": "CREATE TYPE credential_status AS ENUM ('valid', 'invalid', 'unknown');",
+      "params": []
+    },
+    {
+      "sql": "CREATE TYPE mcp_auth_type AS ENUM ('none', 'token', 'basic');",
+      "params": []
+    },
+    {
+      "sql": "CREATE TYPE job_type AS ENUM ('fine_tune_export', 'scheduled_preview', 'scheduled_recap', 'custom');",
+      "params": []
+    },
+    {
+      "sql": "CREATE TYPE job_status AS ENUM ('pending', 'queued', 'active', 'succeeded', 'failed', 'cancelled');",
+      "params": []
+    },
+    {
+      "sql": "CREATE TYPE job_event_type AS ENUM ('enqueued', 'progress', 'retry', 'completed', 'failed');",
+      "params": []
+    },
+    {
+      "sql": "CREATE TABLE app_credentials (\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  provider credential_provider NOT NULL,\n  name text NOT NULL,\n  secret_ciphertext text NOT NULL,\n  secret_iv text NOT NULL,\n  secret_tag text NOT NULL,\n  created_at timestamptz NOT NULL DEFAULT now(),\n  updated_at timestamptz NOT NULL DEFAULT now(),\n  last_validated_at timestamptz,\n  status credential_status NOT NULL DEFAULT 'unknown'\n);",
+      "params": []
+    },
+    {
+      "sql": "CREATE TABLE mcp_servers (\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  label text NOT NULL,\n  base_url text NOT NULL,\n  auth_type mcp_auth_type NOT NULL DEFAULT 'none',\n  auth_ref_id uuid REFERENCES app_credentials(id),\n  metadata jsonb NOT NULL DEFAULT '{}'::jsonb,\n  created_at timestamptz NOT NULL DEFAULT now(),\n  updated_at timestamptz NOT NULL DEFAULT now(),\n  last_ping_at timestamptz,\n  status credential_status NOT NULL DEFAULT 'unknown'\n);",
+      "params": []
+    },
+    {
+      "sql": "CREATE TABLE content_jobs (\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  type job_type NOT NULL,\n  payload jsonb NOT NULL DEFAULT '{}'::jsonb,\n  status job_status NOT NULL DEFAULT 'pending',\n  queue_job_id text,\n  created_at timestamptz NOT NULL DEFAULT now(),\n  started_at timestamptz,\n  completed_at timestamptz,\n  error_message text\n);",
+      "params": []
+    },
+    {
+      "sql": "CREATE TABLE job_events (\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  job_id uuid NOT NULL REFERENCES content_jobs(id) ON DELETE CASCADE,\n  event_type job_event_type NOT NULL,\n  data jsonb NOT NULL DEFAULT '{}'::jsonb,\n  created_at timestamptz NOT NULL DEFAULT now()\n);",
+      "params": []
+    },
+    {
+      "sql": "CREATE INDEX idx_app_credentials_provider ON app_credentials (provider);",
+      "params": []
+    },
+    {
+      "sql": "CREATE INDEX idx_mcp_servers_auth_ref ON mcp_servers (auth_ref_id);",
+      "params": []
+    },
+    {
+      "sql": "CREATE INDEX idx_content_jobs_status ON content_jobs (status);",
+      "params": []
+    },
+    {
+      "sql": "CREATE INDEX idx_job_events_job_id ON job_events (job_id);",
+      "params": []
+    }
+  ]
+}
