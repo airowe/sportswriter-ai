@@ -1,7 +1,4 @@
 import { TabNav } from './TabNav';
-import { EnhancedErrorBoundary } from './EnhancedErrorBoundary';
-import { ToastProvider } from './ToastProvider';
-import { MonitoringProvider } from './MonitoringProvider';
 
 export default function RootLayout({
   children,
@@ -11,13 +8,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <MonitoringProvider>
-          <EnhancedErrorBoundary>
-            <TabNav />
-            {children}
-            <ToastProvider />
-          </EnhancedErrorBoundary>
-        </MonitoringProvider>
+        <TabNav />
+        {children}
       </body>
     </html>
   )
