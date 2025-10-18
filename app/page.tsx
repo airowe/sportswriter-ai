@@ -1,6 +1,5 @@
 "use client";
 import React, { useState } from 'react';
-import { fetchWithErrorHandling, ClientLogger } from '@/lib/clientLogger';
 
 export default function Home() {
   const [url, setUrl] = useState('');
@@ -15,13 +14,14 @@ export default function Home() {
     setSaved(false);
     setArticle(null);
     try {
-      const data = await fetchWithErrorHandling('/api/extract-article', {
+      const res = await fetch('/api/extract-article', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url }),
       });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to extract');
       setArticle(data);
-      ClientLogger.success('Article extracted successfully!');
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -34,13 +34,13 @@ export default function Home() {
     setSaved(false);
     setError('');
     try {
-      await fetchWithErrorHandling('/api/save-article', {
+      const res = await fetch('/api/save-article', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...article, url }),
       });
+      if (!res.ok) throw new Error('Failed to save');
       setSaved(true);
-      ClientLogger.success('Article saved to training data!');
     } catch (e: any) {
       setError(e.message);
     }
